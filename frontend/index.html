@@ -1,289 +1,95 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="sv">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gästbok - OpenShift Lab</title>
+    <title>Yaser's Gästbok - ArgoCD</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
-            background: #f8f9fa;
-            min-height: 100vh;
-            padding: 40px 20px;
-            color: #1a1a1a;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
             line-height: 1.6;
         }
-        
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        
+        .container { max-width: 800px; margin: 0 auto; }
         .header {
-            margin-bottom: 48px;
-        }
-        
-        .header h1 {
-            font-size: 2em;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin-bottom: 8px;
-            letter-spacing: -0.02em;
-        }
-        
-        .header p {
-            font-size: 0.95em;
-            color: #6c757d;
-            font-weight: 400;
-        }
-        
-        .ci-banner {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 8px;
-            padding: 16px 20px;
-            margin: 20px 0;
-            text-align: center;
-        }
-        
-        .ci-banner h2 {
-            font-size: 1em;
-            font-weight: 600;
-            color: #856404;
-            margin: 0;
-        }
-        
-        .deployment-info {
-            margin-top: 8px;
-            font-size: 0.875em;
-            color: #856404;
-        }
-        
-        .stats {
             background: white;
-            border: 1px solid #e9ecef;
+            padding: 30px;
             border-radius: 8px;
-            padding: 24px;
-            margin-bottom: 32px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 32px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        
-        .stat-item {
-            text-align: center;
+        .header h1 { color: #333; margin-bottom: 10px; }
+        .header .info { color: #666; font-size: 14px; }
+        .argocd-badge {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
         }
-        
-        .stat-value {
-            font-size: 2em;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin-bottom: 4px;
-        }
-        
-        .stat-label {
-            font-size: 0.875em;
-            color: #6c757d;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 500;
-        }
-        
+        .argocd-badge strong { color: #2e7d32; }
         .card {
             background: white;
-            border: 1px solid #e9ecef;
+            padding: 25px;
             border-radius: 8px;
-            padding: 32px;
-            margin-bottom: 32px;
-        }
-        
-        .card h2 {
-            font-size: 1.25em;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin-bottom: 24px;
-            letter-spacing: -0.01em;
-        }
-        
-        .form-group {
             margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        
+        .card h2 { color: #333; margin-bottom: 20px; font-size: 20px; }
+        .form-group { margin-bottom: 15px; }
         label {
             display: block;
-            margin-bottom: 8px;
-            color: #495057;
+            margin-bottom: 5px;
+            color: #555;
             font-weight: 500;
-            font-size: 0.875em;
         }
-        
         input, textarea {
             width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            font-size: 0.95em;
-            transition: all 0.2s;
-            font-family: inherit;
-            background: white;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
         }
-        
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: #495057;
-            box-shadow: 0 0 0 3px rgba(73, 80, 87, 0.1);
-        }
-        
-        textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
-        
+        textarea { min-height: 100px; resize: vertical; }
         button {
-            background: #1a1a1a;
+            background: #2196f3;
             color: white;
             border: none;
             padding: 12px 24px;
-            border-radius: 6px;
-            font-size: 0.95em;
-            font-weight: 500;
+            border-radius: 4px;
             cursor: pointer;
-            transition: all 0.2s;
-            width: 100%;
+            font-size: 14px;
+            font-weight: 500;
         }
-        
-        button:hover {
-            background: #343a40;
-        }
-        
-        button:active {
-            transform: scale(0.98);
-        }
-        
-        .entries {
-            margin-top: 48px;
-        }
-        
-        .entries > h2 {
-            font-size: 1.25em;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin-bottom: 20px;
-            letter-spacing: -0.01em;
-        }
-        
+        button:hover { background: #1976d2; }
         .entry {
             background: white;
-            border: 1px solid #e9ecef;
+            padding: 20px;
             border-radius: 8px;
-            padding: 24px;
-            margin-bottom: 16px;
-            transition: all 0.2s;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        
-        .entry:hover {
-            border-color: #dee2e6;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        }
-        
         .entry-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            gap: 16px;
+            margin-bottom: 10px;
         }
-        
-        .entry-name {
-            font-weight: 600;
-            color: #1a1a1a;
-            font-size: 1em;
-        }
-        
-        .entry-date {
-            color: #6c757d;
-            font-size: 0.875em;
-            white-space: nowrap;
-        }
-        
-        .entry-message {
-            color: #495057;
-            line-height: 1.6;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 48px;
-            color: #6c757d;
-            font-size: 0.95em;
-        }
-        
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-            padding: 16px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            font-size: 0.95em;
-        }
-        
-        @media (max-width: 768px) {
-            body {
-                padding: 24px 16px;
-            }
-            
-            .header h1 {
-                font-size: 1.75em;
-            }
-            
-            .card {
-                padding: 24px;
-            }
-            
-            .stats {
-                gap: 24px;
-            }
-            
-            .entry-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-        }
+        .entry-name { font-weight: 600; color: #333; }
+        .entry-date { color: #999; font-size: 13px; }
+        .entry-message { color: #666; }
+        .loading { text-align: center; padding: 40px; color: #999; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📝 Gästbok</h1>
-            <p>OpenShift Lab - Distribuerad Applikation v1 </p>
-            <div class="ci-banner">
-                <h2>🚀 CI/CD Deployment</h2>
-                <div class="deployment-info">
-                    Byggd: <span id="buildTimestamp">__BUILD_TIMESTAMP__</span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="stats" id="stats">
-            <div class="stat-item">
-                <div class="stat-value" id="totalEntries">-</div>
-                <div class="stat-label">Inlägg</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value" id="cacheStatus">-</div>
-                <div class="stat-label">Cache</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value" id="backendStatus">-</div>
-                <div class="stat-label">Status</div>
+            <h1>📝 Yaser's Gästbok</h1>
+            <p class="info">ArgoCD Individual Project - CI/CD Automation</p>
+            <div class="argocd-badge">
+                <strong>🚀 ArgoCD Deployment</strong><br>
+                Byggd: __BUILD_TIMESTAMP__
             </div>
         </div>
         
@@ -291,20 +97,20 @@
             <h2>Skriv i gästboken</h2>
             <form id="entryForm">
                 <div class="form-group">
-                    <label for="name">Namn:</label>
-                    <input type="text" id="name" name="name" required placeholder="Ditt namn">
+                    <label>Namn:</label>
+                    <input type="text" id="name" required placeholder="Ditt namn">
                 </div>
                 <div class="form-group">
-                    <label for="message">Meddelande :</label>
-                    <textarea id="message" name="message" required placeholder="Skriv ditt meddelande här..."></textarea>
+                    <label>Meddelande:</label>
+                    <textarea id="message" required placeholder="Ditt meddelande..."></textarea>
                 </div>
                 <button type="submit">Skicka inlägg</button>
             </form>
         </div>
         
-        <div class="entries">
+        <div class="card">
             <h2>Senaste inläggen</h2>
-            <div id="entriesList" class="loading">Laddar inlägg...</div>
+            <div id="entriesList" class="loading">Laddar...</div>
         </div>
     </div>
 
@@ -313,60 +119,25 @@
             try {
                 const response = await fetch('/api/entries');
                 const entries = await response.json();
-                const cacheStatus = response.headers.get('X-Cache');
-                
-                const entriesList = document.getElementById('entriesList');
+                const list = document.getElementById('entriesList');
                 
                 if (entries.length === 0) {
-                    entriesList.innerHTML = '<div class="entry">Inga inlägg än. Var den första att skriva!</div>';
+                    list.innerHTML = '<p class="loading">Inga inlägg än. Var den första!</p>';
                     return;
                 }
                 
-                entriesList.innerHTML = entries.map(entry => `
+                list.innerHTML = entries.map(entry => 
                     <div class="entry">
                         <div class="entry-header">
-                            <span class="entry-name">${escapeHtml(entry.name)}</span>
-                            <span class="entry-date">
-                                ${new Date(entry.created_at).toLocaleDateString('sv-SE')} 
-                                ${new Date(entry.created_at).toLocaleTimeString('sv-SE')}
-                            </span>
+                            <span class="entry-name"></span>
+                            <span class="entry-date"></span>
                         </div>
-                        <div class="entry-message">${escapeHtml(entry.message)}</div>
+                        <div class="entry-message"></div>
                     </div>
-                `).join('');
-                
-                const cacheStatusElement = document.getElementById('cacheStatus');
-                if (cacheStatusElement) {
-                    cacheStatusElement.textContent = cacheStatus === 'HIT' ? '✓' : '○';
-                }
-                
-                const backendStatusElement = document.getElementById('backendStatus');
-                if (backendStatusElement) {
-                    backendStatusElement.textContent = '✓';
-                }
-                
+                ).join('');
             } catch (error) {
-                console.error('Fel vid laddning av inlägg:', error);
                 document.getElementById('entriesList').innerHTML = 
-                    '<div class="error">Kunde inte ladda inlägg. Kontrollera att backend-tjänsten körs.</div>';
-                
-                const backendStatusElement = document.getElementById('backendStatus');
-                if (backendStatusElement) {
-                    backendStatusElement.textContent = '✗';
-                }
-            }
-        }
-        
-        async function loadStats() {
-            try {
-                const response = await fetch('/api/stats');
-                const stats = await response.json();
-                const totalEntriesElement = document.getElementById('totalEntries');
-                if (totalEntriesElement) {
-                    totalEntriesElement.textContent = stats.total_entries_db || 0;
-                }
-            } catch (error) {
-                console.error('Fel vid laddning av statistik:', error);
+                    '<p style="color: red;">Kunde inte ladda inlägg</p>';
             }
         }
         
@@ -376,54 +147,29 @@
             return div.innerHTML;
         }
         
-        const entryForm = document.getElementById('entryForm');
-        if (entryForm) {
-            entryForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                const name = document.getElementById('name').value;
-                const message = document.getElementById('message').value;
-                
-                try {
-                    const response = await fetch('/api/entries', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ name, message })
-                    });
-                    
-                    if (response.ok) {
-                        entryForm.reset();
-                        await loadEntries();
-                        await loadStats();
-                    } else {
-                        alert('Fel vid skapande av inlägg');
-                    }
-                } catch (error) {
-                    console.error('Fel:', error);
-                    alert('Kunde inte skicka inlägg. Kontrollera att backend-tjänsten körs.');
-                }
-            });
-        }
-        
-        function initialize() {
-            loadEntries();
-            loadStats();
+        document.getElementById('entryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const message = document.getElementById('message').value;
             
-            setInterval(() => {
-                loadEntries();
-                loadStats();
-            }, 30000);
-        }
+            try {
+                const response = await fetch('/api/entries', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, message })
+                });
+                
+                if (response.ok) {
+                    document.getElementById('entryForm').reset();
+                    loadEntries();
+                }
+            } catch (error) {
+                alert('Kunde inte skicka inlägg');
+            }
+        });
         
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initialize);
-        } else {
-            initialize();
-        }
+        loadEntries();
+        setInterval(loadEntries, 30000);
     </script>
 </body>
-
 </html>
-
