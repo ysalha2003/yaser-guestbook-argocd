@@ -1,4 +1,4 @@
-﻿module github.com/ysalha2003/guestbook-app
+module github.com/ysalha2003/guestbook-app
 
 go 1.23
 
