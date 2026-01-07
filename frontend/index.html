@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="sv">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yaser's Gästbok - ArgoCD</title>
+    <title>Gästbok - ArgoCD Project</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -21,7 +21,6 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .header h1 { color: #333; margin-bottom: 10px; }
-        .header .info { color: #666; font-size: 14px; }
         .argocd-badge {
             background: #e8f5e9;
             border-left: 4px solid #4caf50;
@@ -39,12 +38,7 @@
         }
         .card h2 { color: #333; margin-bottom: 20px; font-size: 20px; }
         .form-group { margin-bottom: 15px; }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-weight: 500;
-        }
+        label { display: block; margin-bottom: 5px; color: #555; font-weight: 500; }
         input, textarea {
             width: 100%;
             padding: 10px;
@@ -71,22 +65,18 @@
             margin-bottom: 15px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        .entry-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
+        .entry-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
         .entry-name { font-weight: 600; color: #333; }
         .entry-date { color: #999; font-size: 13px; }
         .entry-message { color: #666; }
         .loading { text-align: center; padding: 40px; color: #999; }
+        .error { color: #d32f2f; text-align: center; padding: 20px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📝 Yaser's Gästbok</h1>
-            <p class="info">ArgoCD Individual Project - CI/CD Automation</p>
+            <h1>📝 Gästbok</h1>
             <div class="argocd-badge">
                 <strong>🚀 ArgoCD Deployment</strong><br>
                 Byggd: __BUILD_TIMESTAMP__
@@ -118,6 +108,9 @@
         async function loadEntries() {
             try {
                 const response = await fetch('/api/entries');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
                 const entries = await response.json();
                 const list = document.getElementById('entriesList');
                 
@@ -126,18 +119,15 @@
                     return;
                 }
                 
-                list.innerHTML = entries.map(entry => 
-                    <div class="entry">
-                        <div class="entry-header">
-                            <span class="entry-name"></span>
-                            <span class="entry-date"></span>
-                        </div>
-                        <div class="entry-message"></div>
-                    </div>
-                ).join('');
+                list.innerHTML = entries.map(entry => {
+                    const name = escapeHtml(entry.name);
+                    const message = escapeHtml(entry.message);
+                    const date = new Date(entry.created_at).toLocaleString('sv-SE');
+                    return '<div class="entry"><div class="entry-header"><span class="entry-name">' + name + '</span><span class="entry-date">' + date + '</span></div><div class="entry-message">' + message + '</div></div>';
+                }).join('');
             } catch (error) {
-                document.getElementById('entriesList').innerHTML = 
-                    '<p style="color: red;">Kunde inte ladda inlägg</p>';
+                console.error('Error loading entries:', error);
+                document.getElementById('entriesList').innerHTML = '<p class="error">Kunde inte ladda inlägg. Försök igen senare.</p>';
             }
         }
         
@@ -147,7 +137,7 @@
             return div.innerHTML;
         }
         
-        document.getElementById('entryForm').addEventListener('submit', async (e) => {
+        document.getElementById('entryForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const name = document.getElementById('name').value;
             const message = document.getElementById('message').value;
@@ -156,15 +146,18 @@
                 const response = await fetch('/api/entries', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, message })
+                    body: JSON.stringify({ name: name, message: message })
                 });
                 
                 if (response.ok) {
                     document.getElementById('entryForm').reset();
                     loadEntries();
+                } else {
+                    alert('Kunde inte skicka inlägg');
                 }
             } catch (error) {
-                alert('Kunde inte skicka inlägg');
+                console.error('Error creating entry:', error);
+                alert('Kunde inte skicka inlägg. Försök igen.');
             }
         });
         
