@@ -1,4 +1,6 @@
-﻿package main
+﻿// GitOps version 1.0
+
+package main
 
 import (
 "context"
