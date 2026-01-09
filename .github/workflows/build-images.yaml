@@ -1,4 +1,4 @@
-﻿name: Build and Push Images
+name: Build and Deploy
 
 on:
   push:
@@ -9,6 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
+  IMAGE_TAG: ${{ github.sha }}
 
 jobs:
   detect-changes:
@@ -21,7 +22,7 @@ jobs:
         with:
           fetch-depth: 2
       
-      - name: Detect changes
+      - name: Detect what changed
         id: filter
         run: |
           if git diff --name-only HEAD~1 HEAD | grep -q '^backend/'; then
@@ -36,58 +37,63 @@ jobs:
             echo "frontend=false" >> $GITHUB_OUTPUT
           fi
 
-  build-backend:
+  build-and-update:
     needs: detect-changes
-    if: needs.detect-changes.outputs.backend == 'true'
+    if: needs.detect-changes.outputs.backend == 'true' || needs.detect-changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
     
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Login to GHCR
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Build and push backend
+      - name: Build and push backend image
+        if: needs.detect-changes.outputs.backend == 'true'
         uses: docker/build-push-action@v5
         with:
           context: ./backend
           file: ./backend/Containerfile
           push: true
           tags: |
+            ${{ env.REGISTRY }}/${{ github.repository }}/backend:${{ env.IMAGE_TAG }}
             ${{ env.REGISTRY }}/${{ github.repository }}/backend:latest
-            ${{ env.REGISTRY }}/${{ github.repository }}/backend:${{ github.sha }}
-
-  build-frontend:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.frontend == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    
-    steps:
-      - uses: actions/checkout@v4
       
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Build and push frontend
+      - name: Build and push frontend image
+        if: needs.detect-changes.outputs.frontend == 'true'
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           file: ./frontend/Containerfile
           push: true
           tags: |
+            ${{ env.REGISTRY }}/${{ github.repository }}/frontend:${{ env.IMAGE_TAG }}
             ${{ env.REGISTRY }}/${{ github.repository }}/frontend:latest
-            ${{ env.REGISTRY }}/${{ github.repository }}/frontend:${{ github.sha }}
+      
+      - name: Update backend manifest with new image tag
+        if: needs.detect-changes.outputs.backend == 'true'
+        run: |
+          sed -i "s|image: ghcr.io/${{ github.repository }}/backend:.*|image: ghcr.io/${{ github.repository }}/backend:${{ env.IMAGE_TAG }}|" manifests/backend.yaml
+      
+      - name: Update frontend manifest with new image tag
+        if: needs.detect-changes.outputs.frontend == 'true'
+        run: |
+          sed -i "s|image: ghcr.io/${{ github.repository }}/frontend:.*|image: ghcr.io/${{ github.repository }}/frontend:${{ env.IMAGE_TAG }}|" manifests/frontend.yaml
+      
+      - name: Commit updated manifests back to repository
+        if: needs.detect-changes.outputs.backend == 'true' || needs.detect-changes.outputs.frontend == 'true'
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add manifests/
+          git commit -m "Update image tags to ${{ env.IMAGE_TAG }}" || echo "No changes to commit"
+          git push
