@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: ghcr.io/ysalha2003/yaser-guestbook-argocd/frontend:02ea0b1086ff934ab5435e4271db87da741e5511
+        image: ghcr.io/ysalha2003/yaser-guestbook-argocd/frontend:e601c39ad83f10476c2703e633e9123e2c10489f
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
